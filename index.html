@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>3D Timbre Cube</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/DragControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <div id="three-container"></div>
+    <div id="p5-container"></div>
+    
+    <div class="terminal-header">
+      <div>> SOUND SYSTEM ONLINE...</div>
+      <div>> READY <span class="blink">_</span></div>
+    </div>
+    
+    
+    <div class="pixel-decoration bottom-right">
+      <pre>Press <span class="key">SPACE</span> to play/pause</pre>
+    </div>
+    
+    <div class="controls">
+      <div id="play-button"></div>
+      
+      <div id="reverse-control">
+        <button id="reverse-btn" class="control-btn"><i class="fas fa-sync-alt"></i> Reverse</button>
+      </div>
+    </div>
+    
+    <!-- Note Adding Modal -->
+    <div id="note-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add Note</h3>
+          <div class="close-btn">×</div>
+        </div>
+        <div class="modal-body">
+          <div class="slider-container">
+            <label>Time <span id="time-value">1.1</span></label>
+            <input type="range" id="time-slider" min="0" max="15" value="0">
+            <div class="slider-ticks">
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+            </div>
+          </div>
+          
+          <div class="slider-container">
+            <label>Pitch <span id="pitch-value">C1</span></label>
+            <input type="range" id="pitch-slider" min="0" max="27" value="0">
+            <div class="pitch-visual">
+              <div class="keyboard-wrapper">
+                <div class="keyboard-visual"></div>
+              </div>
+            </div>
+          </div>
+          
+          <button id="add-note-btn" class="modal-btn">Add Note</button>
+        </div>
+      </div>
+    </div>
+    
+    <script src="sketch.js"></script>
+  </body>
+</html>
