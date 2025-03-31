@@ -1,68 +1,54 @@
-// Audio setup with Tone.js
 let player;
 let filter;
 let distortion;
 let reverb;
 let audioInitialized = false;
 
-// Three.js variables
 let scene, camera, renderer;
 let cube, wireframe;
 let dragControls, orbitControls;
 let draggableCubePoints = [];
 let isDragging = false;
-let originalCubeSize = { width: 4, height: 4, depth: 4 }; // Increased size to be larger relative to plane
-let minSize = 2.5; // Increased minimum size
-let maxSize = 6.0; // Increased maximum size
-let isReversed = false; // Track audio reversal state
+let originalCubeSize = { width: 4, height: 4, depth: 4 };
+let minSize = 2.5;
+let maxSize = 6.0;
+let isReversed = false;
 
-// Monochrome color scheme
-let cubeColor = 0xffffff; // White
+let cubeColor = 0xffffff;
 
-// DOM elements
 let playButton;
 let reverseButton;
 
-// Start with setup to configure UI
 function setup() {
-	// Configure p5 elements
 	playButton = createButton("<i class='fas fa-play'></i>");
 	playButton.parent('play-button');
 	playButton.addClass('play-btn');
 	playButton.mouseClicked(togglePlayback);
 	
-	// Configure reverse button
 	reverseButton = select('#reverse-btn');
 	reverseButton.mouseClicked(toggleReverse);
 	
-	// Initialize Three.js scene
 	init();
 	
-	// Space bar for play/pause
 	window.addEventListener('keydown', function(e) {
 		if (e.code === 'Space') {
-			e.preventDefault(); // Prevent page scrolling
+			e.preventDefault();
 			togglePlayback();
 		}
 	});
 }
 
-// Initialize audio with effects chain
 function initAudio() {
 	if (audioInitialized) return;
 	
-	// Create player and effects
 	player = new Tone.Player("samples/drum_loop.wav");
 	filter = new Tone.Filter(800, "lowpass");
 	distortion = new Tone.Distortion(0.2);
 	reverb = new Tone.Reverb(1.5);
 	
-	// Wait for reverb to initialize
 	reverb.generate().then(() => {
-		// Connect player to effects chain
 		player.chain(filter, distortion, reverb, Tone.Master);
 		
-		// Set audio properties
 		player.loop = true;
 		
 		audioInitialized = true;
@@ -74,7 +60,7 @@ function initAudio() {
 function init() {
 	// Create scene, camera and renderer
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0x000000); // Black background
+	scene.background = new THREE.Color(0x000000);
 	
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 	camera.position.set(8, 8, 12);
@@ -93,7 +79,7 @@ function init() {
 	orbitControls.enableDamping = true;
 	orbitControls.dampingFactor = 0.1;
 	orbitControls.enableZoom = true;
-	orbitControls.target.set(0, originalCubeSize.height / 2 + 1, 0); // Set orbit target to cube's center
+	orbitControls.target.set(0, originalCubeSize.height / 2 + 1, 0);
 	orbitControls.update();
 	
 	// Create a cube
@@ -108,13 +94,10 @@ function init() {
 	});
 	
 	cube = new THREE.Mesh(geometry, material);
-	// Apply initial scale to make the cube larger
 	cube.scale.set(originalCubeSize.width, originalCubeSize.height, originalCubeSize.depth);
-	// Position the cube higher above the floor
 	cube.position.y = originalCubeSize.height / 2 + 1;
 	scene.add(cube);
 	
-	// Add wireframe overlay for visual interest
 	const wireGeometry = new THREE.BoxGeometry(1.01, 1.01, 1.01);
 	const wireMaterial = new THREE.MeshBasicMaterial({
 		color: 0x333333,
@@ -128,22 +111,16 @@ function init() {
 	wireframe.position.copy(cube.position);
 	scene.add(wireframe);
 	
-	// Create handles for resizing the cube
 	createResizeHandles();
 	
-	// Add lighting effects
 	addLighting();
 	
-	// Add floor and grid
 	addEnvironment();
 	
-	// Add window resize handler
 	window.addEventListener('resize', onWindowResize, false);
 	
-	// Initialize audio
 	initAudio();
 	
-	// Start the animation
 	animate();
 }
 
@@ -171,8 +148,7 @@ function addLighting() {
 
 // Add floor and environment elements
 function addEnvironment() {
-	// Add a circular floor
-	const floorGeometry = new THREE.CircleGeometry(12, 32); // Reduced from 20 to 12
+	const floorGeometry = new THREE.CircleGeometry(12, 32);
 	const floorMaterial = new THREE.MeshStandardMaterial({
 		color: 0x111111,
 		roughness: 0.9,
@@ -180,21 +156,18 @@ function addEnvironment() {
 		emissive: 0x000000
 	});
 	const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.rotation.x = -Math.PI / 2; // Rotate to horizontal
-	floor.position.y = 0; // Floor at y=0
+	floor.rotation.x = -Math.PI / 2;
+	floor.position.y = 0;
 	scene.add(floor);
 	
-	// Add grid lines
-	const gridHelper = new THREE.GridHelper(24, 24, 0x333333, 0x222222); // Reduced from 40 to 24, and grid divisions from 40 to 24
-	gridHelper.position.y = 0.01; // Slightly above floor to avoid z-fighting
+	const gridHelper = new THREE.GridHelper(24, 24, 0x333333, 0x222222);
+	gridHelper.position.y = 0.01;
 	scene.add(gridHelper);
 }
 
-// Create resizable cube handles
+// resizable cube handles
 function createResizeHandles() {
-	// Create small spheres at the middle of each face (removed corner handles)
 	const vertices = [
-		// Face centers only
 		new THREE.Vector3(0, 0, -0.5), // Front
 		new THREE.Vector3(0, 0, 0.5),  // Back
 		new THREE.Vector3(-0.5, 0, 0), // Left
@@ -203,24 +176,21 @@ function createResizeHandles() {
 		new THREE.Vector3(0, 0.5, 0)   // Top
 	];
 	
-	const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16); // Made handles slightly larger
-	const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x666666 }); // Gray handles
+	const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+	const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x666666 });
 	
 	vertices.forEach((position, index) => {
 		const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 		sphere.position.copy(position);
-		// Apply the initial scale to handles
 		sphere.position.x *= originalCubeSize.width;
 		sphere.position.y *= originalCubeSize.height;
 		sphere.position.z *= originalCubeSize.depth;
-		// Apply the cube position offset to handles
 		sphere.position.add(cube.position);
 		sphere.userData = { index, isHandle: true, faceDirection: position.clone().normalize() };
 		scene.add(sphere);
 		draggableCubePoints.push(sphere);
 	});
 	
-	// Setup drag controls
 	dragControls = new THREE.DragControls(draggableCubePoints, camera, renderer.domElement);
 	
 	dragControls.addEventListener('dragstart', function(event) {
@@ -229,7 +199,6 @@ function createResizeHandles() {
 		// Disable orbit controls while dragging
 		orbitControls.enabled = false;
 		
-		// Make the cube pulse with an emissive color when dragging starts
 		if (cube.material) {
 			cube.material.emissive = new THREE.Color(0x222222);
 		}
@@ -465,12 +434,10 @@ function toggleReverse() {
 	}
 }
 
-// Handle window resize
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Empty draw function as we're using Three.js for rendering
 function draw() {}
